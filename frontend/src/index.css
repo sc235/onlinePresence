@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────
+   Design System — Cabinet d'Avocat
+   Palette : Navy + Or (juridique professionnel)
+   ────────────────────────────────────────────── */
+
+@theme {
+  --color-navy-950: #080f1f;
+  --color-navy-900: #0c1b33;
+  --color-navy-800: #152238;
+  --color-navy-700: #1e3050;
+  --color-navy-600: #2a4068;
+  --color-navy-500: #365280;
+  --color-navy-400: #4a6a9a;
+  --color-navy-300: #7091b8;
+  --color-navy-200: #a0b8d4;
+  --color-navy-100: #d0dce8;
+
+  --color-gold-600: #a88832;
+  --color-gold-500: #c9a84c;
+  --color-gold-400: #d4b968;
+  --color-gold-300: #e0ca85;
+  --color-gold-200: #ecdba5;
+  --color-gold-100: #f5ecd0;
+
+  --color-cream: #f5f1e8;
+  --color-cream-dark: #e8e0d0;
+
+  --font-family-heading: 'Playfair Display', Georgia, serif;
+  --font-family-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --animate-fade-in: fade-in 0.6s ease-out both;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out both;
+  --animate-slide-in-left: slide-in-left 0.6s ease-out both;
+  --animate-slide-in-right: slide-in-right 0.6s ease-out both;
+  --animate-scale-in: scale-in 0.4s ease-out both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-gold: pulse-gold 2s ease-in-out infinite;
+}
+
+/* ──────────────────────────────────────────────
+   Keyframes
+   ────────────────────────────────────────────── */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(201, 168, 76, 0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ──────────────────────────────────────────────
+   Base Styles
+   ────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+
+  body {
+    font-family: var(--font-family-body);
+    color: var(--color-cream);
+    background-color: var(--color-navy-950);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
+    line-height: 1.2;
+  }
+}
+
+/* ──────────────────────────────────────────────
+   Component Classes
+   ────────────────────────────────────────────── */
+
+@layer components {
+  /* Glassmorphism card */
+  .glass-card {
+    background: rgba(21, 34, 56, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(201, 168, 76, 0.15);
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .glass-card:hover {
+    background: rgba(21, 34, 56, 0.8);
+    border-color: rgba(201, 168, 76, 0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(201, 168, 76, 0.08);
+  }
+
+  /* Gold gradient text */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, var(--color-gold-400), var(--color-gold-500), var(--color-gold-300));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gold divider line */
+  .gold-divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-gold-500), var(--color-gold-300));
+    border-radius: 2px;
+  }
+
+  /* Section container */
+  .section-container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+/* ──────────────────────────────────────────────
+   Scrollbar & Selection
+   ────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-navy-950);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-navy-600);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-500);
+}
+
+::selection {
+  background: rgba(201, 168, 76, 0.3);
+  color: var(--color-cream);
+}
