@@ -317,7 +317,7 @@ function StatsSection() {
   return (
     <section id="stats-section" className="relative py-20 bg-navy-950 overflow-hidden">
       <div className="section-container relative z-10" ref={sectionRef}>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <div
               key={index}

@@ -19,7 +19,8 @@ export default function ProtectedRoute({ children }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const LOGIN_PATH = import.meta.env.VITE_ADMIN_LOGIN_PATH || '/login';
+    return <Navigate to={LOGIN_PATH} replace />;
   }
 
   return children;

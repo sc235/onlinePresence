@@ -1,8 +1,22 @@
 import { Link } from 'react-router-dom';
 import { Scale, MapPin, Phone, Mail, Clock, ArrowUpRight } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Footer() {
+  const { isAuthenticated } = useAuth();
   const currentYear = new Date().getFullYear();
+  const ADMIN_PATH = import.meta.env.VITE_ADMIN_DASHBOARD_PATH || '/admin';
+
+  const footerLinks = [
+    { to: '/', label: 'Accueil' },
+    { to: '/a-propos', label: 'À propos' },
+    { to: '/services', label: 'Services' },
+    { to: '/contact', label: 'Contact' },
+  ];
+
+  if (isAuthenticated) {
+    footerLinks.push({ to: ADMIN_PATH, label: 'Dashboard Admin' });
+  }
 
   return (
     <footer id="main-footer" className="bg-navy-950 border-t border-gold-500/10">
@@ -31,12 +45,7 @@ export default function Footer() {
           <div>
             <h4 className="text-gold-400 font-heading text-lg mb-6">Navigation</h4>
             <ul className="space-y-3">
-              {[
-                { to: '/', label: 'Accueil' },
-                { to: '/a-propos', label: 'À propos' },
-                { to: '/services', label: 'Services' },
-                { to: '/contact', label: 'Contact' },
-              ].map((link) => (
+              {footerLinks.map((link) => (
                 <li key={link.to}>
                   <Link
                     to={link.to}

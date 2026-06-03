@@ -3,7 +3,7 @@
  * Wrapper fetch avec gestion JWT automatique
  */
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 /**
  * Effectue une requête API avec gestion automatique du JWT
@@ -40,8 +40,9 @@ async function request(endpoint, options = {}) {
     localStorage.removeItem('cabinet_token');
     localStorage.removeItem('cabinet_admin');
     // Ne pas rediriger si on est déjà sur login
-    if (!window.location.pathname.includes('/login')) {
-      window.location.href = '/login';
+    const LOGIN_PATH = import.meta.env.VITE_ADMIN_LOGIN_PATH || '/login';
+    if (!window.location.pathname.includes(LOGIN_PATH)) {
+      window.location.href = LOGIN_PATH;
     }
     throw new Error('Session expirée. Veuillez vous reconnecter.');
   }

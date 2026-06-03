@@ -18,7 +18,8 @@ function Sidebar({ activeTab, setActiveTab }) {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    const LOGIN_PATH = import.meta.env.VITE_ADMIN_LOGIN_PATH || '/login';
+    navigate(LOGIN_PATH);
   };
 
   const tabs = [
@@ -627,7 +628,7 @@ function DocumentsTab() {
                 <span className="text-2xl">{getFileIcon(doc.type)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-cream truncate">{doc.nom_fichier}</p>
-                  <div className="flex items-center gap-3 mt-0.5">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
                     <span className="text-xs text-cream/30">{formatSize(doc.taille)}</span>
                     <span className="text-xs text-cream/20">•</span>
                     <span className="text-xs text-cream/30">
@@ -670,11 +671,19 @@ function DocumentsTab() {
 // DASHBOARD PAGE
 // ──────────────────────────────────────────────
 export default function Dashboard() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({ total: 0, nouveau: 0, lu: 0, traite: 0, totalDocs: 0 });
   const [recentMessages, setRecentMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    const LOGIN_PATH = import.meta.env.VITE_ADMIN_LOGIN_PATH || '/login';
+    navigate(LOGIN_PATH);
+  };
 
   useEffect(() => {
     document.title = 'Dashboard Admin — Cabinet Maître Ndiaye';
@@ -750,6 +759,15 @@ export default function Dashboard() {
                 <tab.icon className="w-4 h-4" />
               </button>
             ))}
+            <div className="w-px h-6 bg-gold-500/10 self-center mx-1"></div>
+            <button
+              onClick={handleLogout}
+              id="admin-mobile-logout-btn"
+              className="p-2.5 rounded-lg text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Déconnexion"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

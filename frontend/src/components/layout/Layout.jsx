@@ -13,7 +13,9 @@ export default function Layout() {
   }, [location.pathname]);
 
   // Don't show Navbar/Footer on admin pages
-  const isAdminPage = location.pathname.startsWith('/admin') || location.pathname === '/login';
+  const LOGIN_PATH = import.meta.env.VITE_ADMIN_LOGIN_PATH || '/login';
+  const ADMIN_PATH = import.meta.env.VITE_ADMIN_DASHBOARD_PATH || '/admin';
+  const isAdminPage = location.pathname.startsWith(ADMIN_PATH) || location.pathname === LOGIN_PATH;
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -17,11 +17,13 @@ export default function Login() {
   }, []);
 
   // Redirect if already authenticated
+  const ADMIN_PATH = import.meta.env.VITE_ADMIN_DASHBOARD_PATH || '/admin';
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/admin', { replace: true });
+      navigate(ADMIN_PATH, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, ADMIN_PATH]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +32,7 @@ export default function Login() {
 
     try {
       await login(username, password);
-      navigate('/admin', { replace: true });
+      navigate(ADMIN_PATH, { replace: true });
     } catch (err) {
       setError(err.message || 'Identifiants incorrects.');
     } finally {

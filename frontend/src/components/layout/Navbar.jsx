@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Scale, Phone } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const navLinks = [
   { path: '/', label: 'Accueil' },
@@ -10,9 +11,11 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const { isAuthenticated, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const ADMIN_PATH = import.meta.env.VITE_ADMIN_DASHBOARD_PATH || '/admin';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -63,6 +66,19 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {isAuthenticated && (
+              <Link
+                to={ADMIN_PATH}
+                id="nav-link-admin"
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  location.pathname === ADMIN_PATH
+                    ? 'text-gold-400 bg-gold-500/10'
+                    : 'text-cream/70 hover:text-cream hover:bg-white/5'
+                }`}
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
 
           {/* CTA Button (Desktop) */}
@@ -82,6 +98,15 @@ export default function Navbar() {
             >
               Consultation
             </Link>
+            {isAuthenticated && (
+              <button
+                onClick={logout}
+                className="px-4 py-2.5 rounded-lg text-sm font-medium text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                id="navbar-logout"
+              >
+                Déconnexion
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -99,7 +124,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <div
         className={`md:hidden transition-all duration-400 ease-in-out overflow-hidden ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-[450px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="bg-navy-900/95 backdrop-blur-xl border-t border-gold-500/10 px-6 py-4 space-y-1">
@@ -116,6 +141,18 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {isAuthenticated && (
+            <Link
+              to={ADMIN_PATH}
+              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
+                location.pathname === ADMIN_PATH
+                  ? 'text-gold-400 bg-gold-500/10'
+                  : 'text-cream/70 hover:text-cream hover:bg-white/5'
+              }`}
+            >
+              Dashboard
+            </Link>
+          )}
           <div className="pt-3 border-t border-gold-500/10">
             <a
               href="tel:+221776303703"
@@ -130,6 +167,14 @@ export default function Navbar() {
             >
               Demander une Consultation
             </Link>
+            {isAuthenticated && (
+              <button
+                onClick={logout}
+                className="w-full mt-3 block px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-sm rounded-lg text-center transition-all cursor-pointer"
+              >
+                Déconnexion
+              </button>
+            )}
           </div>
         </div>
       </div>

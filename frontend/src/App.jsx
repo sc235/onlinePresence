@@ -11,6 +11,9 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 
+const LOGIN_PATH = import.meta.env.VITE_ADMIN_LOGIN_PATH || '/login';
+const ADMIN_PATH = import.meta.env.VITE_ADMIN_DASHBOARD_PATH || '/admin';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -25,9 +28,9 @@ export default function App() {
           </Route>
 
           {/* Admin — no Layout */}
-          <Route path="/login" element={<Login />} />
+          <Route path={LOGIN_PATH} element={<Login />} />
           <Route
-            path="/admin"
+            path={ADMIN_PATH}
             element={
               <ProtectedRoute>
                 <Dashboard />
