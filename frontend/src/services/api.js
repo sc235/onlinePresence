@@ -3,7 +3,18 @@
  * Wrapper fetch avec gestion JWT automatique
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+let apiBase = import.meta.env.VITE_API_URL || '';
+if (apiBase) {
+  if (apiBase.endsWith('/')) {
+    apiBase = apiBase.slice(0, -1);
+  }
+  if (!apiBase.endsWith('/api')) {
+    apiBase = `${apiBase}/api`;
+  }
+} else {
+  apiBase = '/api';
+}
+const API_BASE = apiBase;
 
 /**
  * Effectue une requête API avec gestion automatique du JWT
