@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: cabinet-avocat-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: cabinet-avocat-jwt-secret-2024-change-me
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: FRONTEND_URL
+        value: https://cabit-maitre-ndiaye.vercel.app
