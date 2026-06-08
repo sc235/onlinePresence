@@ -61,73 +61,76 @@ router.post('/', validateContact, async (req, res) => {
     );
     const result = stmt.run(nom, email, telephone || null, sujet || null, message);
 
-    // Envoyer une notification par email à l'administrateur
-    try {
-      const mailer = await getTransporter();
-      if (mailer) {
-        // Email de notification à l'admin
-        const adminInfo = await mailer.sendMail({
-          from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
-          to: process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn',
-          subject: `📩 Nouveau message de ${nom} — ${sujet || 'Contact'}`,
-          html: `
-            <h2>Nouveau message reçu</h2>
-            <table style="border-collapse: collapse; width: 100%;">
-              <tr><td style="padding: 8px; font-weight: bold;">Nom :</td><td style="padding: 8px;">${nom}</td></tr>
-              <tr><td style="padding: 8px; font-weight: bold;">Email :</td><td style="padding: 8px;">${email}</td></tr>
-              <tr><td style="padding: 8px; font-weight: bold;">Téléphone :</td><td style="padding: 8px;">${telephone || 'Non renseigné'}</td></tr>
-              <tr><td style="padding: 8px; font-weight: bold;">Sujet :</td><td style="padding: 8px;">${sujet || 'Non renseigné'}</td></tr>
-            </table>
-            <h3>Message :</h3>
-            <p style="background: #f5f5f5; padding: 16px; border-radius: 8px;">${message}</p>
-          `
-        });
-
-        // Afficher le lien de prévisualisation Ethereal (dev uniquement)
-        const previewUrl = nodemailer.getTestMessageUrl(adminInfo);
-        if (previewUrl) {
-          console.log('📧 Prévisualisation email admin:', previewUrl);
-        }
-
-        // Email de confirmation au client
-        const clientInfo = await mailer.sendMail({
-          from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
-          to: email,
-          subject: 'Confirmation de réception — Cabinet Maître Ndiaye',
-          html: `
-            <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: #0c1b33; padding: 24px; text-align: center;">
-                <h1 style="color: #c9a84c; margin: 0;">Cabinet Maître Ndiaye</h1>
-              </div>
-              <div style="padding: 32px; background: #ffffff;">
-                <p>Cher(e) <strong>${nom}</strong>,</p>
-                <p>Nous avons bien reçu votre message et vous en remercions.</p>
-                <p>Notre équipe examinera votre demande dans les plus brefs délais et vous recontactera sous 24 à 48 heures.</p>
-                <p>Cordialement,</p>
-                <p><strong>Cabinet Maître Cheikh Ahmadou Ndiaye</strong><br>
-                13 bis place de l'indépendance, Dakar<br>
-                +221 77 630 37 03</p>
-              </div>
-              <div style="background: #152238; padding: 16px; text-align: center; color: #888; font-size: 12px;">
-                <p>© ${new Date().getFullYear()} Cabinet Maître Ndiaye — Tous droits réservés</p>
-              </div>
-            </div>
-          `
-        });
-
-        const clientPreview = nodemailer.getTestMessageUrl(clientInfo);
-        if (clientPreview) {
-          console.log('📧 Prévisualisation email client:', clientPreview);
-        }
-      }
-    } catch (emailErr) {
-      console.error('⚠️ Erreur envoi email (le message a quand même été enregistré):', emailErr.message);
-    }
-
+    // Répondre immédiatement au client
     res.status(201).json({
       message: 'Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.',
       id: result.lastInsertRowid
     });
+
+    // Envoyer les emails en arrière-plan (sans bloquer la réponse)
+    (async () => {
+      try {
+        const mailer = await getTransporter();
+        if (mailer) {
+          // Email de notification à l'admin
+          const adminInfo = await mailer.sendMail({
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
+            to: process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn',
+            subject: `📩 Nouveau message de ${nom} — ${sujet || 'Contact'}`,
+            html: `
+              <h2>Nouveau message reçu</h2>
+              <table style="border-collapse: collapse; width: 100%;">
+                <tr><td style="padding: 8px; font-weight: bold;">Nom :</td><td style="padding: 8px;">${nom}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Email :</td><td style="padding: 8px;">${email}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Téléphone :</td><td style="padding: 8px;">${telephone || 'Non renseigné'}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Sujet :</td><td style="padding: 8px;">${sujet || 'Non renseigné'}</td></tr>
+              </table>
+              <h3>Message :</h3>
+              <p style="background: #f5f5f5; padding: 16px; border-radius: 8px;">${message}</p>
+            `
+          });
+
+          // Afficher le lien de prévisualisation Ethereal (dev uniquement)
+          const previewUrl = nodemailer.getTestMessageUrl(adminInfo);
+          if (previewUrl) {
+            console.log('📧 Prévisualisation email admin:', previewUrl);
+          }
+
+          // Email de confirmation au client
+          const clientInfo = await mailer.sendMail({
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
+            to: email,
+            subject: 'Confirmation de réception — Cabinet Maître Ndiaye',
+            html: `
+              <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: #0c1b33; padding: 24px; text-align: center;">
+                  <h1 style="color: #c9a84c; margin: 0;">Cabinet Maître Ndiaye</h1>
+                </div>
+                <div style="padding: 32px; background: #ffffff;">
+                  <p>Cher(e) <strong>${nom}</strong>,</p>
+                  <p>Nous avons bien reçu votre message et vous en remercions.</p>
+                  <p>Notre équipe examinera votre demande dans les plus brefs délais et vous recontactera sous 24 à 48 heures.</p>
+                  <p>Cordialement,</p>
+                  <p><strong>Cabinet Maître Cheikh Ahmadou Ndiaye</strong><br>
+                  13 bis place de l'indépendance, Dakar<br>
+                  +221 77 630 37 03</p>
+                </div>
+                <div style="background: #152238; padding: 16px; text-align: center; color: #888; font-size: 12px;">
+                  <p>© ${new Date().getFullYear()} Cabinet Maître Ndiaye — Tous droits réservés</p>
+                </div>
+              </div>
+            `
+          });
+
+          const clientPreview = nodemailer.getTestMessageUrl(clientInfo);
+          if (clientPreview) {
+            console.log('📧 Prévisualisation email client:', clientPreview);
+          }
+        }
+      } catch (emailErr) {
+        console.error('⚠️ Erreur envoi email en arrière-plan (le message a quand même été enregistré):', emailErr.message);
+      }
+    })();
   } catch (err) {
     console.error('Erreur création contact:', err);
     res.status(500).json({ error: 'Erreur interne du serveur.' });
