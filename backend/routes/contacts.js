@@ -53,19 +53,25 @@ async function getTransporter() {
 // ──────────────────────────────────────────────
 router.post('/', validateContact, async (req, res) => {
   try {
-    const { nom, email, telephone, sujet, message } = req.body;
+    const { nom, email, telephone, sujet, message, rdv_date } = req.body;
+    const isRdv = sujet === 'Demande de rendez-vous' || !!rdv_date;
+    const dateRdv = isRdv ? (rdv_date || null) : null;
+    const statutRdv = isRdv ? 'en_attente' : null;
 
     // Insérer le message en base de données
     const stmt = db.prepare(
-      'INSERT INTO messages (nom, email, telephone, sujet, message) VALUES (?, ?, ?, ?, ?)'
+      'INSERT INTO messages (nom, email, telephone, sujet, message, rdv_date, rdv_statut) VALUES (?, ?, ?, ?, ?, ?, ?)'
     );
-    const result = stmt.run(nom, email, telephone || null, sujet || null, message);
+    const result = stmt.run(nom, email, telephone || null, sujet || null, message, dateRdv, statutRdv);
 
     // Répondre immédiatement au client
     res.status(201).json({
-      message: 'Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.',
+      message: isRdv 
+        ? 'Votre demande de rendez-vous a été envoyée avec succès. Vous recevrez une confirmation par email dès validation par le cabinet.'
+        : 'Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.',
       id: result.lastInsertRowid
     });
+
 
     // Envoyer les emails en arrière-plan (sans bloquer la réponse)
     (async () => {
@@ -241,6 +247,129 @@ router.patch('/:id/status', verifyToken, (req, res) => {
 });
 
 // ──────────────────────────────────────────────
+// ──────────────────────────────────────────────
+// PATCH /api/contacts/:id/rdv — Confirmer/Refuser un rendez-vous (admin)
+// ──────────────────────────────────────────────
+router.patch('/:id/rdv', verifyToken, async (req, res) => {
+  try {
+    const { statut, heure } = req.body;
+    const validStatuts = ['accepté', 'refusé'];
+
+    if (!statut || !validStatuts.includes(statut)) {
+      return res.status(400).json({ error: 'Statut invalide. Valeurs acceptées : accepté, refusé.' });
+    }
+
+    if (statut === 'accepté' && !heure) {
+      return res.status(400).json({ error: 'L\'heure de rendez-vous est requise pour une confirmation.' });
+    }
+
+    // Récupérer le message/RDV existant
+    const message = db.prepare('SELECT * FROM messages WHERE id = ?').get(req.params.id);
+    if (!message) {
+      return res.status(404).json({ error: 'Message/Rendez-vous non trouvé.' });
+    }
+
+    const rdvHeure = statut === 'accepté' ? heure : null;
+
+    // Mettre à jour en base de données
+    db.prepare('UPDATE messages SET rdv_statut = ?, rdv_heure = ?, statut = ? WHERE id = ?')
+      .run(statut, rdvHeure, 'traité', req.params.id);
+
+    res.json({ message: `Rendez-vous ${statut} avec succès.`, statut, heure: rdvHeure });
+
+    // Envoyer l'email de notification au client en arrière-plan
+    (async () => {
+      try {
+        const mailer = await getTransporter();
+        if (mailer) {
+          const dateFormatted = message.rdv_date
+            ? new Date(message.rdv_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' })
+            : 'Date non précisée';
+
+          let emailSubject = '';
+          let emailHtml = '';
+
+          if (statut === 'accepté') {
+            emailSubject = 'Confirmation de votre rendez-vous — Cabinet Maître Ndiaye';
+            emailHtml = `
+              <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; border: 1px solid #c9a84c;">
+                <div style="background: #0c1b33; padding: 24px; text-align: center;">
+                  <h1 style="color: #c9a84c; margin: 0;">Cabinet Maître Ndiaye</h1>
+                </div>
+                <div style="padding: 32px; background: #ffffff; color: #152238; line-height: 1.6;">
+                  <p>Cher(e) <strong>${message.nom}</strong>,</p>
+                  <p>Nous avons le plaisir de vous informer que votre demande de rendez-vous a été <strong>confirmée</strong>.</p>
+                  
+                  <div style="background: #fcf9f2; border-left: 4px solid #c9a84c; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                    <p style="margin: 0; font-weight: bold; color: #0c1b33;">Détails du rendez-vous :</p>
+                    <p style="margin: 8px 0 0 0;">📅 <strong>Date :</strong> ${dateFormatted}</p>
+                    <p style="margin: 4px 0 0 0;">⏰ <strong>Heure :</strong> ${heure}</p>
+                    <p style="margin: 4px 0 0 0;">📍 <strong>Lieu :</strong> 13 bis place de l'indépendance, Dakar</p>
+                  </div>
+
+                  <p>Si vous avez un empêchement, merci de nous en informer au moins 24 heures à l'avance au <strong>+221 77 630 37 03</strong>.</p>
+                  
+                  <p>Cordialement,</p>
+                  <p><strong>Cabinet Maître Cheikh Ahmadou Ndiaye</strong><br>
+                  13 bis place de l'indépendance, Dakar<br>
+                  +221 77 630 37 03</p>
+                </div>
+                <div style="background: #152238; padding: 16px; text-align: center; color: #888; font-size: 12px;">
+                  <p>© ${new Date().getFullYear()} Cabinet Maître Ndiaye — Tous droits réservés</p>
+                </div>
+              </div>
+            `;
+          } else {
+            emailSubject = 'Votre demande de rendez-vous — Cabinet Maître Ndiaye';
+            emailHtml = `
+              <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; border: 1px solid #c9a84c;">
+                <div style="background: #0c1b33; padding: 24px; text-align: center;">
+                  <h1 style="color: #c9a84c; margin: 0;">Cabinet Maître Ndiaye</h1>
+                </div>
+                <div style="padding: 32px; background: #ffffff; color: #152238; line-height: 1.6;">
+                  <p>Cher(e) <strong>${message.nom}</strong>,</p>
+                  <p>Nous vous remercions pour l'intérêt que vous portez à notre cabinet.</p>
+                  <p>Malheureusement, en raison d'un calendrier extrêmement chargé, nous ne pourrons pas honorer votre demande de rendez-vous pour le <strong>${dateFormatted}</strong>.</p>
+                  <p>Nous vous invitons à nous contacter directement par téléphone au <strong>+221 77 630 37 03</strong> ou à proposer un autre créneau afin de trouver une date convenable.</p>
+                  
+                  <p>Nous vous remercions pour votre compréhension.</p>
+                  
+                  <p>Cordialement,</p>
+                  <p><strong>Cabinet Maître Cheikh Ahmadou Ndiaye</strong><br>
+                  13 bis place de l'indépendance, Dakar<br>
+                  +221 77 630 37 03</p>
+                </div>
+                <div style="background: #152238; padding: 16px; text-align: center; color: #888; font-size: 12px;">
+                  <p>© ${new Date().getFullYear()} Cabinet Maître Ndiaye — Tous droits réservés</p>
+                </div>
+              </div>
+            `;
+          }
+
+          const clientInfo = await mailer.sendMail({
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
+            to: message.email,
+            subject: emailSubject,
+            html: emailHtml
+          });
+
+          const clientPreview = nodemailer.getTestMessageUrl(clientInfo);
+          if (clientPreview) {
+            console.log(`📧 Prévisualisation email notification RDV (${statut}):`, clientPreview);
+          }
+        }
+      } catch (emailErr) {
+        console.error('⚠️ Erreur envoi email notification RDV:', emailErr.message);
+      }
+    })();
+
+  } catch (err) {
+    console.error('Erreur confirmation RDV:', err);
+    res.status(500).json({ error: 'Erreur interne du serveur.' });
+  }
+});
+
+// ──────────────────────────────────────────────
 // DELETE /api/contacts/:id — Supprimer un message (admin)
 // ──────────────────────────────────────────────
 router.delete('/:id', verifyToken, (req, res) => {
@@ -259,3 +388,5 @@ router.delete('/:id', verifyToken, (req, res) => {
 });
 
 module.exports = router;
+
+

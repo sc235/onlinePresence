@@ -42,6 +42,14 @@ function validateContact(req, res, next) {
     errors.push('Le sujet ne doit pas dépasser 200 caractères.');
   }
 
+  // Vérification optionnelle de la date de rendez-vous
+  if (req.body.rdv_date) {
+    const rdvDate = req.body.rdv_date.trim();
+    if (rdvDate.length > 50) {
+      errors.push('La date de rendez-vous est trop longue.');
+    }
+  }
+
   if (errors.length > 0) {
     return res.status(400).json({ errors });
   }
@@ -52,6 +60,7 @@ function validateContact(req, res, next) {
   req.body.message = message.trim();
   if (req.body.telephone) req.body.telephone = req.body.telephone.trim();
   if (req.body.sujet) req.body.sujet = req.body.sujet.trim();
+  if (req.body.rdv_date) req.body.rdv_date = req.body.rdv_date.trim();
 
   next();
 }

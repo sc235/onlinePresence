@@ -31,7 +31,10 @@ db.exec(`
     sujet TEXT,
     message TEXT NOT NULL,
     statut TEXT DEFAULT 'nouveau',
-    date_creation TEXT DEFAULT (datetime('now'))
+    date_creation TEXT DEFAULT (datetime('now')),
+    rdv_date TEXT DEFAULT NULL,
+    rdv_heure TEXT DEFAULT NULL,
+    rdv_statut TEXT DEFAULT NULL
   );
 
   -- Table des documents uploadés
@@ -46,6 +49,24 @@ db.exec(`
     FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE SET NULL
   );
 `);
+
+// Mises à jour progressives pour les bases de données existantes
+try {
+  db.exec("ALTER TABLE messages ADD COLUMN rdv_date TEXT DEFAULT NULL;");
+} catch (e) {
+  // Ignorer si la colonne existe déjà
+}
+try {
+  db.exec("ALTER TABLE messages ADD COLUMN rdv_heure TEXT DEFAULT NULL;");
+} catch (e) {
+  // Ignorer si la colonne existe déjà
+}
+try {
+  db.exec("ALTER TABLE messages ADD COLUMN rdv_statut TEXT DEFAULT NULL;");
+} catch (e) {
+  // Ignorer si la colonne existe déjà
+}
+
 
 // ──────────────────────────────────────────────
 // Seed du compte administrateur par défaut

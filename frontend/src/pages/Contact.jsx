@@ -32,6 +32,7 @@ export default function Contact() {
     telephone: '',
     sujet: '',
     message: '',
+    rdv_date: '',
   });
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState({ type: '', message: '' });
@@ -68,6 +69,22 @@ export default function Contact() {
     setLoading(true);
     setStatus({ type: '', message: '' });
 
+    if (formData.sujet === 'Demande de rendez-vous') {
+      if (!formData.rdv_date) {
+        setStatus({ type: 'error', message: 'Veuillez choisir une date pour votre rendez-vous.' });
+        setLoading(false);
+        return;
+      }
+      const selectedDate = new Date(formData.rdv_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        setStatus({ type: 'error', message: 'La date choisie doit être dans le futur.' });
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const result = await contactsAPI.send(formData);
 
@@ -86,7 +103,7 @@ export default function Contact() {
         type: 'success',
         message: result.message || 'Votre message a été envoyé avec succès !'
       });
-      setFormData({ nom: '', email: '', telephone: '', sujet: '', message: '' });
+      setFormData({ nom: '', email: '', telephone: '', sujet: '', message: '', rdv_date: '' });
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
@@ -255,6 +272,7 @@ export default function Contact() {
                       className="w-full px-4 py-3 rounded-xl bg-navy-800/50 border border-navy-600/30 text-cream focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all text-sm outline-none"
                     >
                       <option value="" style={{ background: '#152238' }}>Choisir un sujet</option>
+                      <option value="Demande de rendez-vous" style={{ background: '#152238' }}>Demande de rendez-vous</option>
                       <option value="Droit des affaires" style={{ background: '#152238' }}>Droit des Affaires</option>
                       <option value="Droit OHADA" style={{ background: '#152238' }}>Droit OHADA</option>
                       <option value="Droit maritime" style={{ background: '#152238' }}>Droit Maritime</option>
@@ -264,6 +282,24 @@ export default function Contact() {
                     </select>
                   </div>
                 </div>
+
+                {formData.sujet === 'Demande de rendez-vous' && (
+                  <div className="animate-fade-in-up">
+                    <label htmlFor="contact-rdv-date" className="block text-sm text-cream/60 mb-2">
+                      Date de rendez-vous souhaitée <span className="text-gold-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      id="contact-rdv-date"
+                      name="rdv_date"
+                      required
+                      value={formData.rdv_date}
+                      onChange={handleChange}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full px-4 py-3 rounded-xl bg-navy-800/50 border border-navy-600/30 text-cream focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all text-sm outline-none"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label htmlFor="contact-message" className="block text-sm text-cream/60 mb-2">

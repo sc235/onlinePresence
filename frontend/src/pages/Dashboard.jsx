@@ -114,7 +114,8 @@ function StatCard({ icon: Icon, label, value, color = 'gold' }) {
 // ──────────────────────────────────────────────
 // MESSAGE DETAIL MODAL
 // ──────────────────────────────────────────────
-function MessageModal({ message, onClose, onStatusChange }) {
+function MessageModal({ message, onClose, onStatusChange, onRdvResponse }) {
+  const [rdvHeure, setRdvHeure] = useState('');
   if (!message) return null;
 
   const statusColors = {
@@ -178,6 +179,74 @@ function MessageModal({ message, onClose, onStatusChange }) {
               </p>
             </div>
           </div>
+
+          {/* Appointment/RDV section */}
+          {message.rdv_date && (
+            <div className="p-4 rounded-xl bg-gold-500/5 border border-gold-500/10 space-y-3">
+              <h4 className="text-xs font-semibold text-gold-400 uppercase tracking-wider">Demande de rendez-vous</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-cream/40 block font-sans">Date souhaitée</span>
+                  <span className="text-cream font-medium">
+                    {new Date(message.rdv_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-cream/40 block font-sans">Statut RDV</span>
+                  <span className={`font-semibold uppercase tracking-wider ${
+                    message.rdv_statut === 'accepté'
+                      ? 'text-green-400'
+                      : message.rdv_statut === 'refusé'
+                      ? 'text-red-400'
+                      : 'text-blue-400'
+                  }`}>
+                    {message.rdv_statut === 'accepté' ? 'Accepté' : message.rdv_statut === 'refusé' ? 'Refusé' : 'En attente'}
+                  </span>
+                </div>
+              </div>
+
+              {message.rdv_statut === 'accepté' && message.rdv_heure && (
+                <div className="text-xs pt-2 border-t border-gold-500/10">
+                  <span className="text-cream/40 block font-sans">Heure confirmée</span>
+                  <span className="text-cream font-semibold text-sm">{message.rdv_heure}</span>
+                </div>
+              )}
+
+              {message.rdv_statut === 'en_attente' && (
+                <div className="pt-3 border-t border-gold-500/10 space-y-3">
+                  <div>
+                    <label htmlFor="rdv-select-heure" className="text-xs text-cream/40 block mb-1">Sélectionner l'heure</label>
+                    <input
+                      type="time"
+                      id="rdv-select-heure"
+                      value={rdvHeure}
+                      onChange={(e) => setRdvHeure(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-navy-800 border border-navy-600/30 text-cream text-xs outline-none focus:border-gold-500/50"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onRdvResponse(message.id, 'accepté', rdvHeure)}
+                      disabled={!rdvHeure}
+                      className="flex-1 py-2 px-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-navy-950 font-semibold text-xs rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      Confirmer le RDV
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Décliner cette demande de rendez-vous ?')) {
+                          onRdvResponse(message.id, 'refusé');
+                        }
+                      }}
+                      className="py-2 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-xs rounded-lg border border-red-500/20 transition-all"
+                    >
+                      Décliner
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Documents attached */}
           {message.documents && message.documents.length > 0 && (
@@ -727,6 +796,16 @@ export default function Dashboard() {
     }
   };
 
+  const handleRdvResponse = async (id, statut, heure) => {
+    try {
+      const data = await contactsAPI.updateRdvStatus(id, statut, heure);
+      setSelectedMessage((prev) => prev ? { ...prev, rdv_statut: data.statut, rdv_heure: data.heure, statut: 'traité' } : null);
+      loadDashboardData();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-navy-950 flex">
       {/* Desktop Sidebar */}
@@ -793,6 +872,7 @@ export default function Dashboard() {
           message={selectedMessage}
           onClose={() => setSelectedMessage(null)}
           onStatusChange={handleStatusChange}
+          onRdvResponse={handleRdvResponse}
         />
       )}
     </div>

@@ -110,6 +110,13 @@ export const contactsAPI = {
       body: { statut },
     }),
 
+  // Admin — Confirmer ou refuser un rendez-vous
+  updateRdvStatus: (id, statut, heure) =>
+    request(`/contacts/${id}/rdv`, {
+      method: 'PATCH',
+      body: { statut, heure },
+    }),
+
   // Admin — Supprimer un message
   delete: (id) =>
     request(`/contacts/${id}`, {
