@@ -133,6 +133,7 @@ export class ContactController {
           await mailer.sendMail({
             from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn'}>`,
             to: process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn',
+            replyTo: email,
             subject: `📩 Nouveau message de ${nom} — ${sujet ?? 'Contact'}`,
             html: `
               <h2>Nouveau message reçu</h2>
