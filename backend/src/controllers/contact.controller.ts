@@ -134,17 +134,32 @@ export class ContactController {
             from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn'}>`,
             to: process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn',
             replyTo: email,
-            subject: `📩 Nouveau message de ${nom} — ${sujet ?? 'Contact'}`,
+            subject: `📩 ${isRdv ? '📅 Demande de RDV' : 'Message'} de ${nom} — ${sujet ?? 'Contact'}`,
             html: `
-              <h2>Nouveau message reçu</h2>
-              <table style="border-collapse: collapse; width: 100%;">
-                <tr><td style="padding: 8px; font-weight: bold;">Nom :</td><td style="padding: 8px;">${nom}</td></tr>
-                <tr><td style="padding: 8px; font-weight: bold;">Email :</td><td style="padding: 8px;">${email}</td></tr>
-                <tr><td style="padding: 8px; font-weight: bold;">Téléphone :</td><td style="padding: 8px;">${telephone || 'Non renseigné'}</td></tr>
-                <tr><td style="padding: 8px; font-weight: bold;">Sujet :</td><td style="padding: 8px;">${sujet || 'Non renseigné'}</td></tr>
-              </table>
-              <h3>Message :</h3>
-              <p style="background: #f5f5f5; padding: 16px; border-radius: 8px;">${message}</p>
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+                <div style="background: #0c1b33; padding: 20px; text-align: center;">
+                  <h1 style="color: #c9a84c; margin: 0; font-size: 20px;">Cabinet Maître Ndiaye</h1>
+                </div>
+                <div style="padding: 24px; background: #ffffff;">
+                  <h2 style="color: #0c1b33; margin-top: 0;">${isRdv ? '📅 Nouvelle demande de rendez-vous' : '📩 Nouveau message reçu'}</h2>
+                  <table style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+                    <tr><td style="padding: 8px 0; font-weight: bold; width: 120px;">Nom :</td><td style="padding: 8px 0;">${nom}</td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Email :</td><td style="padding: 8px 0;">${email}</td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Téléphone :</td><td style="padding: 8px 0;">${telephone || 'Non renseigné'}</td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Sujet :</td><td style="padding: 8px 0;">${sujet || 'Non renseigné'}</td></tr>
+                    ${isRdv ? `<tr><td style="padding: 8px 0; font-weight: bold; color: #c9a84c;">Date proposée :</td><td style="padding: 8px 0; font-weight: bold; color: #c9a84c;">${new Date(dateRdv!).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>` : ''}
+                  </table>
+                  <h3 style="color: #0c1b33; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">Message :</h3>
+                  <p style="background: #f9f9f9; padding: 16px; border-radius: 6px; border-left: 4px solid #0c1b33; white-space: pre-line; line-height: 1.5; color: #333;">${message}</p>
+                  
+                  <div style="margin-top: 30px; text-align: center;">
+                    <a href="${process.env.FRONTEND_URL ?? 'http://localhost:5173'}/admin" style="background-color: #c9a84c; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Accéder au Dashboard Admin</a>
+                  </div>
+                </div>
+                <div style="background: #152238; padding: 12px; text-align: center; color: #ffffff; font-size: 11px;">
+                  <p style="margin: 0;">Ce message a été généré automatiquement par la plateforme du Cabinet Maître Ndiaye.</p>
+                </div>
+              </div>
             `,
           });
 
