@@ -5,8 +5,9 @@ Plateforme web complète pour la présence en ligne et la gestion interne d'un c
 ## 🚀 Démarrage Rapide
 
 ### Prérequis
-- Node.js v18+ 
+- Node.js v18+
 - npm
+- PostgreSQL (installé et actif)
 
 ### Installation
 
@@ -20,13 +21,42 @@ cd ../frontend
 npm install
 ```
 
-### Lancement
+### Configuration Base de Données & Environnement
+
+Créez une base de données PostgreSQL nommée `rdv`.
+Dans le dossier `backend`, configurez vos accès dans le fichier `.env` :
+
+```env
+PORT=5000
+JWT_SECRET=votre_secret_jwt
+JWT_EXPIRES_IN=24h
+FRONTEND_URL=http://localhost:5173
+
+# Configuration PostgreSQL
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=votre_mot_de_passe
+DB_DATABASE=rdv
+```
+
+### Migration & Initialisation des Tables
+
+Exécutez la commande suivante pour générer le schéma de la base de données et pré-remplir le compte administrateur initial :
+
+```bash
+cd backend
+npm run migrate
+```
+
+### Lancement des Serveurs
 
 **Backend** (port 5000) :
 ```bash
 cd backend
-node server.js
+npm run dev
 ```
+*L'API est accessible sur http://localhost:5000/api et la documentation Swagger sur http://localhost:5000/explorer*
 
 **Frontend** (port 5173) :
 ```bash
@@ -42,15 +72,15 @@ Ouvrez http://localhost:5173 dans votre navigateur.
 - **Utilisateur** : `admin`
 - **Mot de passe** : `admin123`
 
-> ⚠️ Changez ces identifiants en production en modifiant le fichier `backend/.env`
+> ⚠️ Changez le mot de passe ou désactivez ces identifiants par défaut en production.
 
 ## 🏗️ Stack Technique
 
 | Couche | Technologie |
 |--------|-------------|
 | Frontend | React 18 + Vite + Tailwind CSS v4 |
-| Backend | Node.js + Express 5 |
-| Base de données | SQLite (better-sqlite3) |
+| Backend | Node.js + LoopBack 4 (TypeScript) |
+| Base de données | PostgreSQL |
 | Upload fichiers | Multer |
 | Authentification | JWT (jsonwebtoken) |
 | Emails | Nodemailer |
@@ -67,10 +97,14 @@ OnlinePresence/
 │   │   ├── pages/      # Pages du site
 │   │   └── services/   # Client API
 │   └── ...
-├── backend/            # API Express
-│   ├── middleware/      # JWT + Validation
-│   ├── routes/         # Auth, Contacts, Documents
-│   ├── uploads/        # Fichiers uploadés
+├── backend/            # API LoopBack 4
+│   ├── src/
+│   │   ├── controllers/ # Routes et logique métier
+│   │   ├── datasources/ # Connexion base de données (PostgreSQL)
+│   │   ├── models/      # Modèles de données
+│   │   ├── repositories/# Couche d'accès aux données
+│   │   ├── migrate.ts   # Script de migration
+│   │   └── index.ts     # Point d'entrée
 │   └── ...
 └── README.md
 ```
@@ -82,32 +116,33 @@ OnlinePresence/
 | Accueil | `/` | Présentation du cabinet, expertises, statistiques |
 | À propos | `/a-propos` | Biographie, parcours, valeurs |
 | Services | `/services` | Détail des 4 domaines d'expertise, FAQ |
-| Contact | `/contact` | Formulaire, Google Maps, WhatsApp |
+| Contact | `/contact` | Formulaire de contact, demande de rendez-vous, upload de pièces jointes |
 | Login | `/login` | Connexion administrateur |
-| Dashboard | `/admin` | Gestion messages, documents, statistiques |
+| Dashboard | `/admin` | Gestion des messages, documents, statistiques |
 
 ## ⚙️ API Endpoints
 
 ### Public
-- `POST /api/contacts` — Envoyer un message de contact
-- `POST /api/documents/public` — Upload fichier (formulaire contact)
+- `POST /api/contacts` — Envoyer un message ou une demande de rdv
+- `POST /api/documents/public` — Uploader une pièce jointe (formulaire contact)
 
 ### Protégé (JWT)
 - `POST /api/auth/login` — Connexion admin
-- `GET /api/auth/verify` — Vérifier le token
-- `GET /api/contacts` — Liste des messages
-- `GET /api/contacts/stats` — Statistiques
-- `GET /api/contacts/:id` — Détail message
-- `PATCH /api/contacts/:id/status` — Mettre à jour statut
-- `DELETE /api/contacts/:id` — Supprimer message
-- `POST /api/documents` — Upload fichier(s)
-- `GET /api/documents` — Liste des documents
-- `GET /api/documents/:id/download` — Télécharger
-- `DELETE /api/documents/:id` — Supprimer document
+- `GET /api/auth/verify` — Vérifier la validité du token
+- `GET /api/contacts` — Liste paginée des messages
+- `GET /api/contacts/stats` — Statistiques d'activité
+- `GET /api/contacts/:id` — Détail d'un message + pièces jointes associées
+- `PATCH /api/contacts/:id/status` — Mettre à jour le statut du message
+- `PATCH /api/contacts/:id/rdv` — Valider / refuser un rendez-vous (avec envoi d'emails)
+- `DELETE /api/contacts/:id` — Supprimer un message
+- `POST /api/documents` — Uploader des fichiers (admin)
+- `GET /api/documents` — Liste paginée de tous les documents
+- `GET /api/documents/:id/download` — Télécharger un fichier joint
+- `DELETE /api/documents/:id` — Supprimer un fichier joint
 
 ## 📧 Configuration Email (Production)
 
-Modifiez le fichier `backend/.env` :
+Modifiez le fichier `backend/.env` avec les identifiants SMTP de votre fournisseur :
 
 ```env
 SMTP_HOST=smtp.votreprovider.com
