@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@loopback/boot": "^7.0.9",
+    "@loopback/build": "^11.0.9",
     "@loopback/core": "^6.1.6",
     "@loopback/repository": "^7.0.9",
     "@loopback/rest": "^14.0.9",
@@ -28,16 +29,15 @@
     "loopback-connector-postgresql": "^7.1.8",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.0",
-    "tslib": "^2.6.2"
+    "tslib": "^2.6.2",
+    "typescript": "~5.4.3"
   },
   "devDependencies": {
-    "@loopback/build": "^11.0.9",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.11.30",
     "@types/nodemailer": "^6.4.17",
-    "pg": "^8.22.0",
-    "typescript": "~5.4.3"
+    "pg": "^8.22.0"
   }
 }
