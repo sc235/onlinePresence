@@ -7,7 +7,7 @@ Plateforme web complète pour la présence en ligne et la gestion interne d'un c
 ### Prérequis
 - Node.js v18+
 - npm
-- PostgreSQL (installé et actif)
+- PostgreSQL (installé et actif localement, ou provisionné sur Railway)
 
 ### Installation
 
@@ -21,7 +21,7 @@ cd ../frontend
 npm install
 ```
 
-### Configuration Base de Données & Environnement
+### Configuration Base de Données & Environnement (Local)
 
 Créez une base de données PostgreSQL nommée `rdv`.
 Dans le dossier `backend`, configurez vos accès dans le fichier `.env` :
@@ -32,7 +32,7 @@ JWT_SECRET=votre_secret_jwt
 JWT_EXPIRES_IN=24h
 FRONTEND_URL=http://localhost:5173
 
-# Configuration PostgreSQL
+# Configuration PostgreSQL Local
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_USER=postgres
@@ -40,7 +40,7 @@ DB_PASSWORD=votre_mot_de_passe
 DB_DATABASE=rdv
 ```
 
-### Migration & Initialisation des Tables
+### Migration & Initialisation des Tables (Local)
 
 Exécutez la commande suivante pour générer le schéma de la base de données et pré-remplir le compte administrateur initial :
 
@@ -49,7 +49,7 @@ cd backend
 npm run migrate
 ```
 
-### Lancement des Serveurs
+### Lancement des Serveurs en Local
 
 **Backend** (port 5000) :
 ```bash
@@ -66,6 +66,24 @@ npm run dev
 
 Ouvrez http://localhost:5173 dans votre navigateur.
 
+---
+
+## 🚀 Déploiement en Production (Railway)
+
+Cette plateforme est configurée pour être hébergée facilement sur **Railway**.
+
+### Étape 1 : Préparation
+* Créez un projet sur Railway et connectez votre dépôt GitHub `onlinePresence`.
+* Ajoutez un service de base de données **PostgreSQL** dans votre projet Railway (cliquez sur `+ New` -> `Database` -> `Add PostgreSQL`).
+
+### Étape 2 : Configuration du Backend
+* Dans les paramètres (**Settings**) de votre service de backend sur Railway :
+  1. Modifiez l'option **`Root Directory`** et indiquez **`backend`**.
+  2. Modifiez le **`Builder`** sous la section *Build* pour utiliser **`Nixpacks`** (qui détectera automatiquement Node.js).
+* Grâce au fichier `backend/railway.json`, Railway va automatiquement compiler le code TypeScript et lancer la commande de migration des tables (`npm run migrate`) à chaque déploiement.
+
+---
+
 ## 🔐 Accès Administration
 
 - **URL** : http://localhost:5173/login
@@ -81,6 +99,7 @@ Ouvrez http://localhost:5173 dans votre navigateur.
 | Frontend | React 18 + Vite + Tailwind CSS v4 |
 | Backend | Node.js + LoopBack 4 (TypeScript) |
 | Base de données | PostgreSQL |
+| Hébergement Backend | Railway |
 | Upload fichiers | Multer |
 | Authentification | JWT (jsonwebtoken) |
 | Emails | Nodemailer |
@@ -105,6 +124,7 @@ OnlinePresence/
 │   │   ├── repositories/# Couche d'accès aux données
 │   │   ├── migrate.ts   # Script de migration
 │   │   └── index.ts     # Point d'entrée
+│   ├── railway.json    # Configuration déploiement Railway
 │   └── ...
 └── README.md
 ```
@@ -142,7 +162,7 @@ OnlinePresence/
 
 ## 📧 Configuration Email (Production)
 
-Modifiez le fichier `backend/.env` avec les identifiants SMTP de votre fournisseur :
+Modifiez les variables d'environnement de votre service sur Railway avec vos identifiants SMTP de production :
 
 ```env
 SMTP_HOST=smtp.votreprovider.com
