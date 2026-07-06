@@ -24,8 +24,13 @@ export class CabinetAvocatBackendApplication extends BootMixin(
     options.rest = options.rest ?? {};
     options.rest.basePath = '/api';
     options.rest.cors = {
-      origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+      origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // Dynamically allow any origin calling the API to prevent CORS blocks
+        callback(null, true);
+      },
       credentials: true,
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      allowedHeaders: 'Content-Type,Authorization,X-Requested-With,Accept',
     };
 
     super(options);
