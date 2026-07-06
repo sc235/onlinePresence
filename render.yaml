@@ -1,11 +1,15 @@
+databases:
+  - name: cabinet-avocat-db
+    plan: free
+
 services:
   - type: web
     name: cabinet-avocat-backend
     env: node
     plan: free
     rootDir: backend
-    buildCommand: npm install
-    startCommand: node server.js
+    buildCommand: npm install && npm run build
+    startCommand: npm run migrate && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -19,3 +23,24 @@ services:
         value: admin123
       - key: FRONTEND_URL
         value: https://cabit-maitre-ndiaye.vercel.app
+      # PostgreSQL configuration injected from Render Database
+      - key: DB_HOST
+        fromDatabase:
+          name: cabinet-avocat-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cabinet-avocat-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: cabinet-avocat-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cabinet-avocat-db
+          property: password
+      - key: DB_DATABASE
+        fromDatabase:
+          name: cabinet-avocat-db
+          property: database
