@@ -1,6 +1,7 @@
 /**
  * Client API — Cabinet d'Avocat
  * Wrapper fetch avec gestion JWT automatique
+ * Connected to Railway production API
  */
 
 let apiBase = import.meta.env.VITE_API_URL || '';
