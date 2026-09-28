@@ -14,9 +14,8 @@ import {inject} from '@loopback/core';
 import {DocumentRepository} from '../repositories';
 import {Document} from '../models';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import {put, del as delBlob} from '@vercel/blob';
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -29,17 +28,7 @@ const ALLOWED_TYPES = [
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadsDir = path.join(__dirname, '../../../uploads');
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -101,10 +90,15 @@ export class DocumentController {
           const documents: Document[] = [];
 
           for (const file of files) {
+            const blob = await put(file.originalname, file.buffer, {
+              access: 'public',
+              token: process.env.BLOB_READ_WRITE_TOKEN,
+            });
+
             const doc = await this.documentRepository.create({
               messageId,
               nomFichier: file.originalname,
-              cheminFichier: file.filename,
+              cheminFichier: blob.url,
               type: file.mimetype,
               taille: file.size,
             });
@@ -124,7 +118,7 @@ export class DocumentController {
             })),
           });
         } catch (dbErr) {
-          reject(new HttpErrors.InternalServerError('Erreur lors de l\'enregistrement en base de données.'));
+          reject(new HttpErrors.InternalServerError('Erreur lors de l\\'enregistrement en base de données ou Blob.'));
         }
       });
     });
@@ -150,10 +144,15 @@ export class DocumentController {
         try {
           const messageId = this.request.body.message_id ? parseInt(this.request.body.message_id) : undefined;
 
+          const blob = await put(file.originalname, file.buffer, {
+            access: 'public',
+            token: process.env.BLOB_READ_WRITE_TOKEN,
+          });
+
           const doc = await this.documentRepository.create({
             messageId,
             nomFichier: file.originalname,
-            cheminFichier: file.filename,
+            cheminFichier: blob.url,
             type: file.mimetype,
             taille: file.size,
           });
@@ -171,7 +170,7 @@ export class DocumentController {
             },
           });
         } catch (dbErr) {
-          reject(new HttpErrors.InternalServerError('Erreur lors de l\'enregistrement en base de données.'));
+          reject(new HttpErrors.InternalServerError('Erreur lors de l\\'enregistrement en base de données ou Blob.'));
         }
       });
     });
@@ -187,15 +186,6 @@ export class DocumentController {
     const offset = (page - 1) * limit;
     const total = await this.documentRepository.count();
 
-    // In LoopBack, we can execute native queries or use relation queries.
-    // For simplicity, let's fetch documents and left-join or map contact names.
-    const documents = await this.documentRepository.find({
-      order: ['dateUpload DESC'],
-      limit,
-      offset,
-    });
-
-    // Resolve contact_nom for dashboard compat
     const ds = await this.documentRepository.dataSource;
     const sql = `
       SELECT d.*, m.nom as contact_nom 
@@ -206,7 +196,6 @@ export class DocumentController {
     `;
     const results = await ds.execute(sql, [limit, offset]);
 
-    // Map keys to match the frontend expectations
     const mapped = results.map((r: any) => ({
       id: r.id,
       message_id: r.message_id,
@@ -234,14 +223,13 @@ export class DocumentController {
     this.checkAuth();
 
     const doc = await this.documentRepository.findById(id);
-    const filePath = path.join(__dirname, '../../../uploads', doc.cheminFichier);
 
-    if (!fs.existsSync(filePath)) {
-      throw new HttpErrors.NotFound('Fichier non trouvé sur le serveur.');
+    if (doc.cheminFichier && doc.cheminFichier.startsWith('http')) {
+      this.responseObj.redirect(doc.cheminFichier);
+      return this.responseObj;
+    } else {
+      throw new HttpErrors.NotFound('Ancien fichier local non supporté sur Vercel.');
     }
-
-    this.responseObj.download(filePath, doc.nomFichier);
-    return this.responseObj;
   }
 
   @del('/documents/{id}')
@@ -250,9 +238,12 @@ export class DocumentController {
 
     const doc = await this.documentRepository.findById(id);
 
-    const filePath = path.join(__dirname, '../../../uploads', doc.cheminFichier);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (doc.cheminFichier && doc.cheminFichier.includes('public.blob.vercel-storage.com')) {
+      try {
+        await delBlob(doc.cheminFichier, { token: process.env.BLOB_READ_WRITE_TOKEN });
+      } catch (e) {
+        console.error('Erreur suppression blob Vercel:', e);
+      }
     }
 
     await this.documentRepository.deleteById(id);
