@@ -83,6 +83,15 @@ export default function Navbar() {
 
           {/* CTA Button (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
+            {!isAuthenticated && (
+              <Link
+                to={ADMIN_PATH}
+                className="text-xs font-medium text-cream/30 hover:text-gold-400 transition-colors mr-2 uppercase tracking-wider"
+                title="Espace Administrateur"
+              >
+                Admin
+              </Link>
+            )}
             <a
               href="tel:+221776303703"
               className="flex items-center gap-2 px-4 py-2 text-sm text-gold-400 hover:text-gold-300 transition-colors"
