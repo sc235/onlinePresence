@@ -89,7 +89,7 @@ export default function Navbar() {
               id="navbar-phone"
             >
               <Phone className="w-4 h-4" />
-              <span className="hidden lg:inline">+221 77 630 37 03</span>
+              <span className="hidden lg:inline">+221 33 842 37 72 / +221 77 630 37 03</span>
             </a>
             <Link
               to="/contact"
@@ -159,7 +159,7 @@ export default function Navbar() {
               className="flex items-center gap-2 px-4 py-3 text-sm text-gold-400"
             >
               <Phone className="w-4 h-4" />
-              +221 77 630 37 03
+              +221 33 842 37 72 / 77 630 37 03
             </a>
             <Link
               to="/contact"

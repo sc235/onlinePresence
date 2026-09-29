@@ -90,7 +90,7 @@ export default function Footer() {
               <li>
                 <a href="tel:+221776303703" className="flex items-center gap-3 text-sm text-cream/50 hover:text-gold-400 transition-colors">
                   <Phone className="w-4 h-4 text-gold-500 flex-shrink-0" />
-                  +221 77 630 37 03
+                  +221 33 842 37 72 \u003cbr /\u003e +221 77 630 37 03
                 </a>
               </li>
               <li>

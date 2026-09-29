@@ -131,8 +131,8 @@ export class ContactController {
         const mailer = await getTransporter();
         if (mailer) {
           await mailer.sendMail({
-            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn'}>`,
-            to: process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn',
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'mecanavocat@gmail.com'}>`,
+            to: process.env.SMTP_FROM ?? 'mecanavocat@gmail.com',
             replyTo: email,
             subject: `📩 ${isRdv ? '📅 Demande de RDV' : 'Message'} de ${nom} — ${sujet ?? 'Contact'}`,
             html: `
@@ -164,7 +164,7 @@ export class ContactController {
           });
 
           await mailer.sendMail({
-            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn'}>`,
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'mecanavocat@gmail.com'}>`,
             to: email,
             subject: 'Confirmation de réception — Cabinet Maître Ndiaye',
             html: `
@@ -179,7 +179,7 @@ export class ContactController {
                   <p>Cordialement,</p>
                   <p><strong>Cabinet Maître Cheikh Ahmadou Ndiaye</strong><br>
                   13 bis place de l'indépendance, Dakar<br>
-                  +221 77 630 37 03</p>
+                  +221 33 842 37 72 / +221 77 630 37 03</p>
                 </div>
                 <div style="background: #152238; padding: 16px; text-align: center; color: #888; font-size: 12px;">
                   <p>© ${new Date().getFullYear()} Cabinet Maître Ndiaye — Tous droits réservés</p>
@@ -353,11 +353,11 @@ export class ContactController {
                     <p style="margin: 4px 0 0 0;">⏰ <strong>Heure :</strong> ${heure}</p>
                     <p style="margin: 4px 0 0 0;">📍 <strong>Lieu :</strong> 13 bis place de l'indépendance, Dakar</p>
                   </div>
-                  <p>Si vous avez un empêchement, merci de nous en informer au moins 24 heures à l'avance au <strong>+221 77 630 37 03</strong>.</p>
+                  <p>Si vous avez un empêchement, merci de nous en informer au moins 24 heures à l'avance au <strong>+221 33 842 37 72</strong> ou au <strong>+221 77 630 37 03</strong>.</p>
                   <p>Cordialement,</p>
                   <p><strong>Cabinet Maître Cheikh Ahmadou Ndiaye</strong><br>
                   13 bis place de l'indépendance, Dakar<br>
-                  +221 77 630 37 03</p>
+                  +221 33 842 37 72 / +221 77 630 37 03</p>
                 </div>
                 <div style="background: #152238; padding: 16px; text-align: center; color: #888; font-size: 12px;">
                   <p>© ${new Date().getFullYear()} Cabinet Maître Ndiaye — Tous droits réservés</p>
@@ -375,12 +375,12 @@ export class ContactController {
                   <p>Cher(e) <strong>${message.nom}</strong>,</p>
                   <p>Nous vous remercions pour l'intérêt que vous portez à notre cabinet.</p>
                   <p>Malheureusement, en raison d'un calendrier extrêmement chargé, nous ne pourrons pas honorer votre demande de rendez-vous pour le <strong>${dateFormatted}</strong>.</p>
-                  <p>Nous vous invitons à nous contacter directement par téléphone au <strong>+221 77 630 37 03</strong> ou à proposer un autre créneau afin de trouver une date convenable.</p>
+                  <p>Nous vous invitons à nous contacter directement par téléphone au <strong>+221 33 842 37 72</strong> ou <strong>+221 77 630 37 03</strong> ou à proposer un autre créneau afin de trouver une date convenable.</p>
                   <p>Nous vous remercions pour votre compréhension.</p>
                   <p>Cordialement,</p>
                   <p><strong>Cabinet Maître Cheikh Ahmadou Ndiaye</strong><br>
                   13 bis place de l'indépendance, Dakar<br>
-                  +221 77 630 37 03</p>
+                  +221 33 842 37 72 / +221 77 630 37 03</p>
                 </div>
                 <div style="background: #152238; padding: 16px; text-align: center; color: #888; font-size: 12px;">
                   <p>© ${new Date().getFullYear()} Cabinet Maître Ndiaye — Tous droits réservés</p>
@@ -390,7 +390,7 @@ export class ContactController {
           }
 
           await mailer.sendMail({
-            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'contact@cabinet-ndiaye.sn'}>`,
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM ?? 'mecanavocat@gmail.com'}>`,
             to: message.email,
             subject: emailSubject,
             html: emailHtml,

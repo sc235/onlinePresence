@@ -117,8 +117,8 @@ export default function Contact() {
   };
 
   const contactInfo = [
-    { icon: Phone, title: 'Téléphone', value: '+221 77 630 37 03', href: 'tel:+221776303703', description: 'Du lundi au vendredi, 8h — 18h' },
-    { icon: Mail, title: 'Email', value: 'contact@cabinet-ndiaye.sn', href: 'mailto:contact@cabinet-ndiaye.sn', description: 'Réponse sous 24-48h' },
+    { icon: Phone, title: 'Téléphones', value: '+221 33 842 37 72 / +221 77 630 37 03', href: 'tel:+221338423772', description: 'Du lundi au vendredi, 8h — 18h' },
+    { icon: Mail, title: 'Email', value: 'mecanavocat@gmail.com', href: 'mailto:mecanavocat@gmail.com', description: 'Réponse sous 24-48h' },
     { icon: MapPin, title: 'Adresse', value: "13 bis place de l'indépendance", href: 'https://maps.google.com/?q=13+bis+place+de+l+independance+Dakar+Senegal', description: 'Dakar, Sénégal' },
     { icon: Clock, title: 'Horaires', value: 'Lun — Ven : 8h — 18h', href: null, description: 'Sam : 9h — 13h (sur RDV)' },
   ];
