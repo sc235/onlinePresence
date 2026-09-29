@@ -49,8 +49,8 @@ export default function Login() {
       <div className="relative w-full max-w-md animate-scale-in">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-gold-500/20">
-            <Scale className="w-8 h-8 text-navy-950" />
+          <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mx-auto mb-4 shadow-xl shadow-gold-500/20 border border-cream/20">
+            <span className="font-serif text-4xl font-bold text-navy-950" style={{ letterSpacing: '-0.1em', paddingRight: '4px' }}>CN</span>
           </div>
           <h1 className="text-2xl font-heading font-bold text-cream">Espace Administration</h1>
           <p className="text-sm text-cream/40 mt-2">Cabinet Maître Ndiaye</p>

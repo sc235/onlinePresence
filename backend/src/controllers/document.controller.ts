@@ -118,7 +118,7 @@ export class DocumentController {
             })),
           });
         } catch (dbErr) {
-          reject(new HttpErrors.InternalServerError('Erreur lors de l\\'enregistrement en base de données ou Blob.'));
+          reject(new HttpErrors.InternalServerError("Erreur lors de l'enregistrement en base de données ou Blob."));
         }
       });
     });
@@ -170,7 +170,7 @@ export class DocumentController {
             },
           });
         } catch (dbErr) {
-          reject(new HttpErrors.InternalServerError('Erreur lors de l\\'enregistrement en base de données ou Blob.'));
+          reject(new HttpErrors.InternalServerError("Erreur lors de l'enregistrement en base de données ou Blob."));
         }
       });
     });
