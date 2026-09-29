@@ -4,7 +4,6 @@ import {
   Scale, LogOut, Mail, FileText, BarChart3, Inbox,
   Eye, Trash2, Download, Upload, CheckCircle, Clock,
   AlertCircle, X, ChevronLeft, ChevronRight, Filter,
-  AlertCircle, X, ChevronLeft, ChevronRight, Filter,
   RefreshCw, Search, MessageSquare, File, User
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
