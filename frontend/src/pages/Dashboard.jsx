@@ -4,10 +4,11 @@ import {
   Scale, LogOut, Mail, FileText, BarChart3, Inbox,
   Eye, Trash2, Download, Upload, CheckCircle, Clock,
   AlertCircle, X, ChevronLeft, ChevronRight, Filter,
-  RefreshCw, Search, MessageSquare, File
+  AlertCircle, X, ChevronLeft, ChevronRight, Filter,
+  RefreshCw, Search, MessageSquare, File, User
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { contactsAPI, documentsAPI } from '../services/api';
+import { authAPI, contactsAPI, documentsAPI } from '../services/api';
 
 // ──────────────────────────────────────────────
 // SIDEBAR
@@ -26,6 +27,7 @@ function Sidebar({ activeTab, setActiveTab }) {
     { id: 'overview', label: 'Vue d\'ensemble', icon: BarChart3 },
     { id: 'messages', label: 'Messages', icon: Mail },
     { id: 'documents', label: 'Documents', icon: FileText },
+    { id: 'settings', label: 'Paramètres', icon: User },
   ];
 
   return (
@@ -737,6 +739,76 @@ function DocumentsTab() {
 }
 
 // ──────────────────────────────────────────────
+// SETTINGS TAB
+// ──────────────────────────────────────────────
+function SettingsTab() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const { admin } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+    try {
+      const data = await authAPI.updateProfile(username, password);
+      setSuccess(data.message || 'Profil mis à jour avec succès.');
+      setUsername('');
+      setPassword('');
+    } catch (err) {
+      setError(err.message || 'Erreur lors de la mise à jour.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-heading font-bold text-cream">Paramètres du profil</h2>
+      </div>
+      <div className="glass-card p-6 max-w-md">
+        {success && <div className="mb-4 p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-2"><CheckCircle className="w-4 h-4"/>{success}</div>}
+        {error && <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2"><AlertCircle className="w-4 h-4"/>{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm text-cream/60 mb-2">Nouveau nom d'utilisateur (optionnel)</label>
+            <input 
+              type="text" 
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-navy-800/50 border border-navy-600/30 text-cream focus:border-gold-500/50 outline-none text-sm placeholder-cream/30"
+              placeholder={`Actuel: ${admin?.username || 'admin'}`}
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-cream/60 mb-2">Nouveau mot de passe (optionnel)</label>
+            <input 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-navy-800/50 border border-navy-600/30 text-cream focus:border-gold-500/50 outline-none text-sm placeholder-cream/30"
+              placeholder="••••••••"
+            />
+          </div>
+          <button 
+            type="submit" 
+            disabled={loading || (!username && !password)}
+            className="w-full py-3.5 mt-4 bg-gradient-to-r from-gold-500 to-gold-600 text-navy-950 font-semibold rounded-xl disabled:opacity-50 transition-all hover:from-gold-400 hover:to-gold-500 shadow-lg shadow-gold-500/20"
+          >
+            {loading ? 'Enregistrement...' : 'Mettre à jour le profil'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
 // DASHBOARD PAGE
 // ──────────────────────────────────────────────
 export default function Dashboard() {
@@ -827,6 +899,7 @@ export default function Dashboard() {
               { id: 'overview', icon: BarChart3 },
               { id: 'messages', icon: Mail },
               { id: 'documents', icon: FileText },
+              { id: 'settings', icon: User },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -862,6 +935,9 @@ export default function Dashboard() {
           )}
           {activeTab === 'documents' && (
             <DocumentsTab />
+          )}
+          {activeTab === 'settings' && (
+            <SettingsTab />
           )}
         </div>
       </div>

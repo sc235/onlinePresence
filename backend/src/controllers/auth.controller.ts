@@ -2,6 +2,7 @@ import {repository} from '@loopback/repository';
 import {
   post,
   get,
+  put,
   requestBody,
   response,
   Response,
@@ -137,5 +138,69 @@ export class AuthController {
     } catch (err) {
       throw new HttpErrors.Unauthorized('Token invalide ou expiré.');
     }
+  }
+
+  @put('/auth/profile')
+  @response(200, {
+    description: 'Update Admin Profile',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            message: {type: 'string'},
+          },
+        },
+      },
+    },
+  })
+  async updateProfile(
+    @inject('rest.http.request') request: any,
+    @requestBody({
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              username: {type: 'string'},
+              password: {type: 'string'},
+            },
+          },
+        },
+      },
+    })
+    data: any,
+  ): Promise<any> {
+    const authHeader = request.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new HttpErrors.Unauthorized('Token manquant.');
+    }
+
+    const token = authHeader.split(' ')[1];
+    const secret = process.env.JWT_SECRET ?? 'fallback_secret_for_dev_only';
+    let decoded: any;
+
+    try {
+      decoded = jwt.verify(token, secret);
+    } catch (err) {
+      throw new HttpErrors.Unauthorized('Token invalide ou expiré.');
+    }
+
+    const admin = await this.adminRepository.findById(decoded.id);
+    if (!admin) {
+      throw new HttpErrors.NotFound('Administrateur non trouvé.');
+    }
+
+    if (data.username) {
+      admin.username = data.username;
+    }
+    if (data.password) {
+      admin.passwordHash = bcrypt.hashSync(data.password, 10);
+    }
+
+    await this.adminRepository.updateById(admin.id, admin);
+
+    return { message: 'Profil mis à jour avec succès.' };
   }
 }

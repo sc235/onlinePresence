@@ -79,6 +79,12 @@ export const authAPI = {
     }),
 
   verify: () => request('/auth/verify'),
+  
+  updateProfile: (username, password) =>
+    request('/auth/profile', {
+      method: 'PUT',
+      body: { username, password },
+    }),
 };
 
 // ──────────────────────────────────────────────
