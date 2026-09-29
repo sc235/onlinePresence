@@ -41,8 +41,8 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group" id="navbar-logo">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center shadow-lg group-hover:shadow-gold-500/25 transition-all duration-300">
-              <Scale className="w-5 h-5 text-navy-950" />
+            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-lg group-hover:shadow-white/25 transition-all duration-300 border border-cream/20">
+              <span className="font-serif text-2xl font-bold text-navy-950" style={{ letterSpacing: '-0.1em', paddingRight: '4px' }}>CN</span>
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-semibold tracking-wide text-cream font-heading">Cabinet</span>

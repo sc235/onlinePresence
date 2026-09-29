@@ -26,8 +26,8 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center">
-                <Scale className="w-5 h-5 text-navy-950" />
+              <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-cream/20">
+                <span className="font-serif text-2xl font-bold text-navy-950" style={{ letterSpacing: '-0.1em', paddingRight: '4px' }}>CN</span>
               </div>
               <div>
                 <div className="text-sm font-semibold text-cream font-heading">Cabinet</div>
