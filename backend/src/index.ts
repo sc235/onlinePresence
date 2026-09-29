@@ -20,7 +20,7 @@ if (require.main === module) {
   const config = {
     rest: {
       port: +(process.env.PORT ?? 5000),
-      host: process.env.HOST ?? 'localhost',
+      host: process.env.HOST ?? '0.0.0.0',
       // The `gracePeriodForClose` option controls how long to wait for
       // active connections to complete before shutting down the HTTP server.
       gracePeriodForClose: 5000, // 5 seconds
