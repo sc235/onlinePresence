@@ -80,8 +80,8 @@ router.post('/', validateContact, async (req, res) => {
         if (mailer) {
           // Email de notification à l'admin
           const adminInfo = await mailer.sendMail({
-            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
-            to: process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn',
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'mecanavocat@gmail.com'}>`,
+            to: process.env.SMTP_FROM || 'mecanavocat@gmail.com',
             subject: `📩 Nouveau message de ${nom} — ${sujet || 'Contact'}`,
             html: `
               <h2>Nouveau message reçu</h2>
@@ -104,7 +104,7 @@ router.post('/', validateContact, async (req, res) => {
 
           // Email de confirmation au client
           const clientInfo = await mailer.sendMail({
-            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'mecanavocat@gmail.com'}>`,
             to: email,
             subject: 'Confirmation de réception — Cabinet Maître Ndiaye',
             html: `
@@ -347,7 +347,7 @@ router.patch('/:id/rdv', verifyToken, async (req, res) => {
           }
 
           const clientInfo = await mailer.sendMail({
-            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'contact@cabinet-ndiaye.sn'}>`,
+            from: `"Cabinet Maître Ndiaye" <${process.env.SMTP_FROM || 'mecanavocat@gmail.com'}>`,
             to: message.email,
             subject: emailSubject,
             html: emailHtml

@@ -94,9 +94,9 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="mailto:contact@cabinet-ndiaye.sn" className="flex items-center gap-3 text-sm text-cream/50 hover:text-gold-400 transition-colors">
+                <a href="mailto:mecanavocat@gmail.com" className="flex items-center gap-3 text-sm text-cream/50 hover:text-gold-400 transition-colors">
                   <Mail className="w-4 h-4 text-gold-500 flex-shrink-0" />
-                  contact@cabinet-ndiaye.sn
+                  mecanavocat@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-3">
